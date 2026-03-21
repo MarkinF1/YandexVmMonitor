@@ -1,4 +1,4 @@
-# ☁️ Yandex Cloud VM Autorestarter
+# ☁️ Yandex Cloud VM Monitor
 
 Python-скрипт для автоматического мониторинга и перезапуска **прерываемых (preemptible)** виртуальных машин в Yandex Cloud. 
 
