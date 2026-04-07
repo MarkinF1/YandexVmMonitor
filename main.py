@@ -10,11 +10,6 @@ telegram_queue = []
 def send_telegram_message(text):
     """Отправляет уведомление в Telegram."""
     # Формируем словарь прокси для библиотеки requests
-    proxies = {
-        'http': PROXY_URL,
-        'https': PROXY_URL
-    } if USE_PROXY else None
-    
     for tg_chat_id in TG_CHAT_IDS:
         telegram_queue.append((tg_chat_id, text))
 
@@ -28,7 +23,7 @@ def send_telegram_message(text):
             'parse_mode': 'Markdown'
         }
         try:
-            requests.post(url, json=payload, timeout=10, proxies=proxies)
+            requests.post(url, json=payload, timeout=10)
         except Exception as e:
             print(f"Ошибка при отправке в Telegram чат {tg_chat_id}, попробую отправить позже: {e}")
             telegram_queue.append((tg_chat_id, text))
