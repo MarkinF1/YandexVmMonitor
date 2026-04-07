@@ -1,0 +1,14 @@
+services:
+  vm-monitor:
+    build: .
+    container_name: yandex_vm_monitor
+    restart: unless-stopped
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"   # Максимальный размер одного файла логов (10 мегабайт)
+        max-file: "3"     # Хранить не более 3 таких файлов
+    environment:
+      - TZ=Europe/Moscow
