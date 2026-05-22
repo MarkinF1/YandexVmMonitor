@@ -1,18 +1,27 @@
 import time
+import pytz
 import requests
 import datetime
 
 from config import *
 
+
 url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage"
 telegram_queue = []
+moscow_tz = pytz.timezone('Europe/Moscow')
+
 
 def send_telegram_message(text):
-    """Отправляет уведомление в Telegram."""
+    """ Сохраняем сообщение в очереди на отправку """
+    moscow_time = moscow_tz.localize(datetime.datetime.now())
+    text = f"**Яндекс Облако**\n[{moscow_time.strftime("%d.%m.%Y %H:%M")} (Мск)] {text}"
+
     # Формируем словарь прокси для библиотеки requests
     for tg_chat_id in TG_CHAT_IDS:
         telegram_queue.append((tg_chat_id, text))
 
+def push_telegram_messages():
+    """Отправляет уведомление в Telegram."""
     telegram_queue_copy = telegram_queue.copy()
     telegram_queue.clear()
 
@@ -65,16 +74,16 @@ def check_and_start_vm():
                 if start_resp.status_code == 200:
                     print(f"[{current_time}] Команда на запуск ВМ {instance_id} успешно отправлена!")
                     if USE_TG:
-                        msg = f"✅ **Яндекс Облако**\nВМ `{instance_id}` была остановлена и сейчас **перезапущена** автоматически."
+                        msg = f"✅ ВМ `{instance_id}` была остановлена и сейчас **перезапущена** автоматически."
                         send_telegram_message(msg)
                 else:
                     print(f"[{current_time}] Ошибка запуска ВМ {instance_id}: {start_resp.text}")
                     if USE_TG:
-                        msg = f"✅ **Яндекс Облако**\n⛔ ВМ `{instance_id}` была остановлена. Перезапустить ВМ не удалось."
+                        msg = f"⛔ ВМ `{instance_id}` была остановлена. Перезапустить ВМ не удалось."
                         send_telegram_message(msg)
             elif status != "RUNNING":
                 if USE_TG:
-                    msg = f"✅ **Яндекс Облако**\n⚠️ ВМ `{instance_id}` имеет статус {status}."
+                    msg = f"⚠️ ВМ `{instance_id}` имеет статус {status}."
                     send_telegram_message(msg)
 
     except requests.exceptions.RequestException as e:
@@ -88,4 +97,5 @@ if __name__ == '__main__':
     time.sleep(START_TIMEOUT)
     while True:
         check_and_start_vm()
+        push_telegram_messages()
         time.sleep(CHECK_INTERVAL_SECONDS)

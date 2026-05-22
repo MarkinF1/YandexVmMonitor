@@ -15,14 +15,11 @@ Python-скрипт для автоматического мониторинга
 
 ## 🛠 Настройка
 
-Все параметры конфигурации хранятся в файле `config.py`.
-
-> [!IMPORTANT]
-> **Безопасность:** Если вы планируете сделать свой репозиторий публичным, обязательно добавьте `config.py` в файл `.gitignore`, чтобы ваши секретные токены не попали в открытый доступ.
+Все параметры конфигурации хранятся в файле `.env`.
 
 ### 1. Данные Yandex Cloud
 * **OAUTH_TOKEN**: Получите его, перейдя по **[этой ссылке](https://oauth.yandex.ru/authorize?response_type=token&client_id=1a6990aa636648e9b2ef855fa7bec2fb)**.
-* **INSTANCE_IDS**: Скопируйте «Идентификатор» вашей ВМ в консоли Yandex Cloud (раздел «Обзор», формат `fhm8...`). Можно указать несколько ID списком.
+* **INSTANCE_IDS**: Скопируйте «Идентификатор» вашей ВМ в консоли Yandex Cloud (раздел «Обзор», формат `fhm8...`). Можно указать несколько ID списком через запятую без пробелов.
 
 ### 2. Настройка Telegram (опционально)
 1.  **TG_TOKEN**: Создайте бота через **[@BotFather](https://t.me/BotFather)** (команда `/newbot`).
@@ -39,53 +36,19 @@ Python-скрипт для автоматического мониторинга
     cd YandexVmMonitor
     ```
 
-2.  **Установите зависимости:**
+2.  **Если нет докера установите его:**
     ```bash
-    pip install requests
+    sudo apt install docker.io
+    sudo apt install docker-compose
     ```
 
-3.  **Заполните `config.py`** своими данными.
+3.  **Скопируйте файл `.env_exmaple`, переименуйте его в `.env` и заполните своими данными**.
 
 4.  **Запустите мониторинг:**
     ```bash
-    python main.py
+    docker-compose up -d
     ```
-
 ---
-
-## 🔄 Работа в фоновом режиме (systemd)
-
-Для надежной работы на Linux-сервере рекомендуется создать системную службу, которая будет запускать скрипт автоматически.
-
-1.  **Создайте файл сервиса:**
-    ```bash
-    sudo nano /etc/systemd/system/yc-monitor.service
-    ```
-
-2.  **Вставьте содержимое** (заменив `/path/to/your/folder` на реальный путь):
-    ```ini
-    [Unit]
-    Description=Yandex Cloud VM Monitor
-    After=network.target
-
-    [Service]
-    Type=simple
-    User=root
-    WorkingDirectory=/path/to/your/folder
-    ExecStart=/usr/bin/python3 main.py
-    Restart=always
-    RestartSec=10
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
-
-3.  **Активируйте службу:**
-    ```bash
-    sudo systemctl daemon-reload
-    sudo systemctl enable yc-monitor
-    sudo systemctl start yc-monitor
-    ```
 
 ## 📄 Лицензия
 Этот проект распространяется под лицензией MIT.
